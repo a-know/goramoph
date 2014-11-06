@@ -35,21 +35,27 @@ func main() {
 		case xml.StartElement:
 			//do something
 			fmt.Println("StartElement")
+			fmt.Println(token.(xml.StartElement))
 		case xml.EndElement:
 			//do something
 			fmt.Println("EndElement")
+			fmt.Println(token.(xml.EndElement))
 		case xml.CharData:
 			//do something
 			fmt.Println("CharData")
+			fmt.Println(string(token.(xml.CharData)))
 		case xml.Comment:
 			//do something
 			fmt.Println("Comment")
+			fmt.Println(string(token.(xml.Comment)))
 		case xml.ProcInst:
 			//do something
 			fmt.Println("ProcInst")
+			fmt.Println(token.(xml.ProcInst))
 		case xml.Directive:
 			//do something
 			fmt.Println("Directive")
+			fmt.Println(string(token.(xml.Directive)))
 		default:
 			panic("unknown xml token.")
 		}
