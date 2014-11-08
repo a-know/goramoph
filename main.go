@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	r "reflect"
+	"strings"
 )
 
 func main() {
@@ -73,7 +74,9 @@ func main() {
 func MapToStruct(mapVal map[string]string, val interface{}) (ok bool) {
 	structVal := r.Indirect(r.ValueOf(val))
 	for name, elem := range mapVal {
-		f := structVal.FieldByName(name)
+		// ここで来る name は　plist の key エレメントの値なのでスペースを含んでいる。
+		// 一方 struct のフィールド名からはスペースを除去している。
+		f := structVal.FieldByName(strings.Replace(name, " ", "", -1))
 		if f.IsValid() {
 			f.Set(r.ValueOf(elem))
 		}
