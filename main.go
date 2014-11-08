@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	r "reflect"
 )
 
 func main() {
@@ -45,7 +46,10 @@ func main() {
 			//do nothing
 		case xml.CharData:
 			if string(token.(xml.CharData)) == "Track ID" {
-				fmt.Println(m)
+				// CharData が Track ID が来る＝今まで処理対象だったレコードの終了処理をする ＆ 次のレコードに処理を移す
+				s1 := playData{}
+				MapToStruct(m, &s1)
+				fmt.Println(s1)
 				m = map[string]string{}
 			}
 			if shouldSet && key != "" {
@@ -64,6 +68,17 @@ func main() {
 			panic("unknown xml token.")
 		}
 	}
+}
+
+func MapToStruct(mapVal map[string]string, val interface{}) (ok bool) {
+	structVal := r.Indirect(r.ValueOf(val))
+	for name, elem := range mapVal {
+		f := structVal.FieldByName(name)
+		if f.IsValid() {
+			f.Set(r.ValueOf(elem))
+		}
+	}
+	return
 }
 
 type playData struct {
@@ -120,8 +135,3 @@ type playData struct {
 	PlaylistItems        string
 	SmartCriteria        string
 }
-
-// type Thumb struct {
-// 	Title  string `xml:"title"`
-// 	Length string `xml:"length"`
-// }
