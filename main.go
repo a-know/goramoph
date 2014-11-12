@@ -24,6 +24,7 @@ func main() {
 	reader := bufio.NewReaderSize(fp, 4096)
 
 	var m map[string]string = map[string]string{}
+	var playDataList []playData
 	var shouldSet bool
 	var key string
 	d := xml.NewDecoder(reader)
@@ -48,9 +49,14 @@ func main() {
 		case xml.CharData:
 			if string(token.(xml.CharData)) == "Track ID" {
 				// CharData が Track ID が来る＝今まで処理対象だったレコードの終了処理をする ＆ 次のレコードに処理を移す
-				s1 := playData{}
-				MapToStruct(m, &s1)
-				fmt.Println(s1)
+				d := playData{}
+				MapToStruct(m, &d)
+
+				if d.TrackNumber != "" {
+					playDataList = append(playDataList, d)
+					fmt.Println(d)
+				}
+
 				m = map[string]string{}
 			}
 			if shouldSet && key != "" {
