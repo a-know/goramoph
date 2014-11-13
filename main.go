@@ -100,12 +100,13 @@ func export_csv(mod_date string, playDataList []playData) {
 	for _, data := range playDataList {
 		structVal := r.Indirect(r.ValueOf(data))
 		typ := structVal.Type()
+		var raw []string
 
 		for i := 0; i < typ.NumField(); i++ {
 			field := structVal.Field(i)
-			val := fmt.Sprintf("%v", field.Interface())
-			writer.Write([]string{typ.Field(i).Name, val})
+			raw = append(raw, fmt.Sprintf("%v", field.Interface()))
 		}
+		writer.Write(raw)
 	}
 	writer.Flush()
 }
