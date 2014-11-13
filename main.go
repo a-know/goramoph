@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"encoding/csv"
 	"encoding/xml"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	r "reflect"
 	"strings"
@@ -16,9 +18,7 @@ func main() {
 
 	// パース対象の xml ファイル名を引数に受ける
 	fp, err = os.Open(os.Args[1])
-	if err != nil {
-		panic(err)
-	}
+	failOnError(err)
 	defer fp.Close()
 
 	reader := bufio.NewReaderSize(fp, 4096)
@@ -78,9 +78,7 @@ func main() {
 
 	// 出力する csv ファイル名として用いるために、xml ファイルの最終更新日時を取得
 	finfo, err_finfo := fp.Stat()
-	if err_finfo != nil {
-		panic(err_finfo)
-	}
+	failOnError(err_finfo)
 	ts := finfo.ModTime()
 	mod_date := fmt.Sprintf("%d%02d%02d%02d%02d%02d", ts.Year(), ts.Month(), ts.Day(), ts.Hour(), ts.Minute(), ts.Second())
 
@@ -88,6 +86,28 @@ func main() {
 }
 
 func export_csv(mod_date string, playDataList []playData) {
+	// TODO csv ディレクトリがなかったら作る
+	filepath := fmt.Sprintf("./csv/%s.csv", mod_date)
+	file, err := os.OpenFile(filepath, os.O_WRONLY|os.O_CREATE, 0600)
+	failOnError(err)
+	defer file.Close()
+
+	err = file.Truncate(0) // ファイルを空にする(同一ファイルに対して2回目以降の実施の場合)
+	failOnError(err)
+
+	writer := csv.NewWriter(file)
+
+	for _, data := range playDataList {
+		structVal := r.Indirect(r.ValueOf(data))
+		typ := structVal.Type()
+
+		for i := 0; i < typ.NumField(); i++ {
+			field := structVal.Field(i)
+			val := fmt.Sprintf("%v", field.Interface())
+			writer.Write([]string{typ.Field(i).Name, val})
+		}
+	}
+	writer.Flush()
 }
 
 func MapToStruct(mapVal map[string]string, val interface{}) (ok bool) {
@@ -101,6 +121,13 @@ func MapToStruct(mapVal map[string]string, val interface{}) (ok bool) {
 		}
 	}
 	return
+}
+
+func failOnError(err error) {
+	if err != nil {
+		log.Fatal("Error:", err)
+		panic(err)
+	}
 }
 
 type playData struct {
