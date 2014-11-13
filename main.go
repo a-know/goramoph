@@ -54,7 +54,7 @@ func main() {
 
 				if d.TrackNumber != "" {
 					playDataList = append(playDataList, d)
-					fmt.Println(d)
+					// fmt.Println(d)
 				}
 
 				m = map[string]string{}
@@ -75,6 +75,19 @@ func main() {
 			panic("unknown xml token.")
 		}
 	}
+
+	// 出力する csv ファイル名として用いるために、xml ファイルの最終更新日時を取得
+	finfo, err_finfo := fp.Stat()
+	if err_finfo != nil {
+		panic(err_finfo)
+	}
+	ts := finfo.ModTime()
+	mod_date := fmt.Sprintf("%d%02d%02d%02d%02d%02d", ts.Year(), ts.Month(), ts.Day(), ts.Hour(), ts.Minute(), ts.Second())
+
+	export_csv(mod_date, playDataList)
+}
+
+func export_csv(mod_date string, playDataList []playData) {
 }
 
 func MapToStruct(mapVal map[string]string, val interface{}) (ok bool) {
