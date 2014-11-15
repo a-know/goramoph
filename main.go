@@ -86,7 +86,8 @@ func main() {
 }
 
 func export_csv(mod_date string, playDataList []playData) {
-	// TODO csv ディレクトリがなかったら作る
+	// csv ディレクトリがなかったら作る
+	failOnError(os.MkdirAll("./csv", 0744))
 	filepath := fmt.Sprintf("./csv/%s.csv", mod_date)
 	file, err := os.OpenFile(filepath, os.O_WRONLY|os.O_CREATE, 0600)
 	failOnError(err)
