@@ -105,7 +105,8 @@ func export_csv(mod_date string, playDataList []playData) {
 
 		for i := 0; i < typ.NumField(); i++ {
 			field := structVal.Field(i)
-			raw = append(raw, fmt.Sprintf("%v", field.Interface()))
+			value := fmt.Sprintf("%v", field.Interface())
+			raw = append(raw, strings.Replace(value, "\n", " ", -1))
 		}
 		writer.Write(raw)
 	}
