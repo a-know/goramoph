@@ -1,0 +1,210 @@
+[
+{
+"name": "Artist",
+"type": "string"
+},
+{
+"name": "Album",
+"type": "string"
+},
+{
+"name": "Genre",
+"type": "string"
+},
+{
+"name": "Kind",
+"type": "string"
+},
+{
+"name": "Size",
+"type": "integer"
+},
+{
+"name": "TotalTime",
+"type": "string"
+},
+{
+"name": "TrackNumber",
+"type": "integer"
+},
+{
+"name": "DateModified",
+"type": "string"
+},
+{
+"name": "DateAdded",
+"type": "string"
+},
+{
+"name": "BitRate",
+"type": "string"
+},
+{
+"name": "SampleRate",
+"type": "string"
+},
+{
+"name": "PersistentID",
+"type": "string"
+},
+{
+"name": "TrackType",
+"type": "string"
+},
+{
+"name": "Location",
+"type": "string"
+},
+{
+"name": "FileFolderCount",
+"type": "string"
+},
+{
+"name": "LibraryFolderCount",
+"type": "string"
+},
+{
+"name": "PlayCount",
+"type": "integer"
+},
+{
+"name": "PlayDate",
+"type": "string"
+},
+{
+"name": "PlayDateUTC",
+"type": "string"
+},
+{
+"name": "Rating",
+"type": "integer"
+},
+{
+"name": "AlbumRating",
+"type": "integer"
+},
+{
+"name": "AlbumRatingComputed",
+"type": "integer"
+},
+{
+"name": "ArtworkCount",
+"type": "integer"
+},
+{
+"name": "SkipCount",
+"type": "integer"
+},
+{
+"name": "SkipDate",
+"type": "string"
+},
+{
+"name": "Disabled",
+"type": "string"
+},
+{
+"name": "SortAlbum",
+"type": "string"
+},
+{
+"name": "Year",
+"type": "string"
+},
+{
+"name": "Comments",
+"type": "string"
+},
+{
+"name": "SortName",
+"type": "string"
+},
+{
+"name": "SortArtist",
+"type": "string"
+},
+{
+"name": "VolumeAdjustment",
+"type": "string"
+},
+{
+"name": "AlbumArtist",
+"type": "string"
+},
+{
+"name": "DiscNumber",
+"type": "integer"
+},
+{
+"name": "DiscCount",
+"type": "integer"
+},
+{
+"name": "TrackCount",
+"type": "integer"
+},
+{
+"name": "ReleaseDate",
+"type": "string"
+},
+{
+"name": "Protected",
+"type": "string"
+},
+{
+"name": "Purchased",
+"type": "string"
+},
+{
+"name": "Compilation",
+"type": "string"
+},
+{
+"name": "Composer",
+"type": "string"
+},
+{
+"name": "HasVideo",
+"type": "string"
+},
+{
+"name": "VideoWidth",
+"type": "integer"
+},
+{
+"name": "VideoHeight",
+"type": "integer"
+},
+{
+"name": "Movie",
+"type": "string"
+},
+{
+"name": "Master",
+"type": "string"
+},
+{
+"name": "PlaylistID",
+"type": "string"
+},
+{
+"name": "PlaylistPersistentID",
+"type": "string"
+},
+{
+"name": "Visible",
+"type": "string"
+},
+{
+"name": "AllItems",
+"type": "string"
+},
+{
+"name": "PlaylistItems",
+"type": "string"
+},
+{
+"name": "SmartCriteria",
+"type": "string"
+}
+]
