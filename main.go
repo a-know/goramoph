@@ -2,13 +2,16 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/csv"
 	"encoding/xml"
 	"fmt"
 	"io"
 	"log"
 	"os"
+	"os/exec"
 	r "reflect"
+	"regexp"
 	"strings"
 )
 
@@ -83,6 +86,39 @@ func main() {
 	mod_date := fmt.Sprintf("%d%02d%02d%02d%02d%02d", ts.Year(), ts.Month(), ts.Day(), ts.Hour(), ts.Minute(), ts.Second())
 
 	export_csv(mod_date, playDataList)
+
+	//外部コマンドを実行し、プロジェクト名を取得する
+	cmd := exec.Command("gcloud", "config", "list")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	failOnError(cmd.Run())
+	fmt.Printf("in all caps: %q\n", out.String())
+	//外部コマンドの実行結果からプロジェクト名を抽出する
+	re, _ := regexp.Compile("\nproject = (.+)\n")
+	one := re.Find([]byte(out.String()))
+	fmt.Println("Find:", string(one))
+	replace_re, _ := regexp.Compile("project|\\s|\n|=")
+	project_name := replace_re.ReplaceAllString(string(one), "")
+	fmt.Println("project_name:", string(project_name))
+	//バケットが既に作成済みかどうかを調べて、未作成なら作成する
+	cmd = exec.Command("gsutil", "ls")
+	var ls_out bytes.Buffer
+	cmd.Stdout = &ls_out
+	failOnError(cmd.Run())
+	fmt.Printf("in all caps: %q\n", ls_out.String())
+	if m, _ := regexp.MatchString("gs://"+project_name+"-csv/\n", ls_out.String()); m {
+		fmt.Println("バケット作成済み")
+	} else {
+		fmt.Println("バケット未作成")
+		cmd = exec.Command("gsutil", "mb", "gs://"+project_name+"-csv")
+		failOnError(cmd.Run())
+		fmt.Println("バケット作成完了")
+	}
+	//作成したcsvファイルをアップロード
+	cmd = exec.Command("gsutil", "cp", "csv/"+mod_date+".csv", "gs://"+project_name+"-csv")
+	failOnError(cmd.Run())
+	fmt.Println("gcsへのアップロードを完了")
+
 }
 
 func export_csv(mod_date string, playDataList []playData) {
@@ -105,7 +141,8 @@ func export_csv(mod_date string, playDataList []playData) {
 
 		for i := 0; i < typ.NumField(); i++ {
 			field := structVal.Field(i)
-			raw = append(raw, fmt.Sprintf("%v", field.Interface()))
+			value := fmt.Sprintf("%v", field.Interface())
+			raw = append(raw, strings.Replace(value, "\n", " ", -1))
 		}
 		writer.Write(raw)
 	}
