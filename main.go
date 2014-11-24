@@ -114,6 +114,10 @@ func main() {
 		failOnError(cmd.Run())
 		fmt.Println("バケット作成完了")
 	}
+	//作成したcsvファイルをアップロード
+	cmd = exec.Command("gsutil", "cp", "csv/"+mod_date+".csv", "gs://"+project_name+"-csv")
+	failOnError(cmd.Run())
+	fmt.Println("gcsへのアップロードを完了")
 
 }
 
