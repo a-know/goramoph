@@ -16,3 +16,8 @@ func IsBucketExists(project_name string) bool {
 	m, _ := regexp.MatchString(util.GenerateBucketName(project_name), ls_out.String())
 	return m
 }
+
+func MakeBucket(project_name string) {
+	cmd := exec.Command("gsutil", "mb", util.GenerateBucketName(project_name))
+	util.FailOnError(cmd.Run())
+}

@@ -32,15 +32,14 @@ func main() {
 	exporter.ExportCsv(mod_date, playDataList)
 
 	//外部コマンドを実行し、プロジェクト名を取得する
-	project_name := external.GetProjectName()
+	project_name := external.GetProjectName() + "_test"
 	fmt.Println("project_name:", string(project_name))
 	//バケットが既に作成済みかどうかを調べて、未作成なら作成する
 	if external.IsBucketExists(project_name) {
 		fmt.Println("バケット作成済み")
 	} else {
 		fmt.Println("バケット未作成")
-		cmd := exec.Command("gsutil", "mb", "gs://"+project_name+"-csv")
-		util.FailOnError(cmd.Run())
+		external.MakeBucket(project_name)
 		fmt.Println("バケット作成完了")
 	}
 	//作成したcsvファイルをアップロード
