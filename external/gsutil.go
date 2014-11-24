@@ -27,3 +27,8 @@ func FileUpload(project_name, mod_date string) {
 	cmd := exec.Command("gsutil", "cp", exporter.GetCsvFilepath(mod_date), util.GenerateBucketName(project_name))
 	util.FailOnError(cmd.Run())
 }
+
+func RemoveUploadFile(project_name, mod_date string) {
+	cmd := exec.Command("gsutil", "rm", util.GenerateUploadFilepath(project_name, mod_date))
+	util.FailOnError(cmd.Run())
+}

@@ -39,6 +39,6 @@ func IsTableExists(project_name, mod_date string) bool {
 }
 
 func LoadToTable(project_name, mod_date string) {
-	cmd := exec.Command("bq", "load", "--schema=playdata_schema.json", GenerateDatasetName(project_name)+"."+mod_date, util.GenerateBucketName(project_name)+mod_date+".csv")
+	cmd := exec.Command("bq", "load", "--schema=playdata_schema.json", GenerateDatasetName(project_name)+"."+mod_date, util.GenerateUploadFilepath(project_name, mod_date))
 	util.FailOnError(cmd.Run())
 }

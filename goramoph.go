@@ -8,7 +8,6 @@ import (
 	"./util"
 	"fmt"
 	"os"
-	"os/exec"
 )
 
 func main() {
@@ -60,7 +59,6 @@ func main() {
 		fmt.Println("bqへのロードを完了")
 	}
 	//ロードに使用したcsvファイルをgcsから削除する
-	cmd := exec.Command("gsutil", "rm", "gs://"+project_name+"-csv/"+mod_date+".csv")
-	util.FailOnError(cmd.Run())
+	external.RemoveUploadFile(project_name, mod_date)
 	fmt.Println("gcs上のファイルの削除を完了")
 }

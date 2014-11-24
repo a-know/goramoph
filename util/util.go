@@ -24,3 +24,7 @@ func GetModDate(fp *os.File) (mod_date string) {
 func GenerateBucketName(project_name string) string {
 	return "gs://" + project_name + "-csv/"
 }
+
+func GenerateUploadFilepath(project_name, mod_date string) string {
+	return GenerateBucketName(project_name) + mod_date + ".csv"
+}
