@@ -5,11 +5,12 @@ import (
 	"bufio"
 	"encoding/xml"
 	"io"
+	"os"
 	r "reflect"
 	"strings"
 )
 
-func ItunesXmlParse(fp io.Reader) []model.Playdata {
+func ItunesXmlParse(fp *os.File) []model.Playdata {
 
 	reader := bufio.NewReaderSize(fp, 4096)
 

@@ -3,10 +3,10 @@ package main
 import (
 	"./model"
 	"./parser"
+	"./util"
 	"bytes"
 	"encoding/csv"
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	r "reflect"
@@ -20,17 +20,14 @@ func main() {
 
 	// パース対象の xml ファイル名を引数に受ける
 	fp, err = os.Open(os.Args[1])
-	failOnError(err)
+	util.FailOnError(err)
 	defer fp.Close()
 
 	var playDataList []model.Playdata
 	playDataList = parser.ItunesXmlParse(fp)
 
 	// 出力する csv ファイル名として用いるために、xml ファイルの最終更新日時を取得
-	finfo, err_finfo := fp.Stat()
-	failOnError(err_finfo)
-	ts := finfo.ModTime()
-	mod_date := fmt.Sprintf("%d%02d%02d%02d%02d%02d", ts.Year(), ts.Month(), ts.Day(), ts.Hour(), ts.Minute(), ts.Second())
+	mod_date := util.GetModDate(fp)
 
 	export_csv(mod_date, playDataList)
 
@@ -38,7 +35,7 @@ func main() {
 	cmd := exec.Command("gcloud", "config", "list")
 	var out bytes.Buffer
 	cmd.Stdout = &out
-	failOnError(cmd.Run())
+	util.FailOnError(cmd.Run())
 	fmt.Printf("in all caps: %q\n", out.String())
 	//外部コマンドの実行結果からプロジェクト名を抽出する
 	re, _ := regexp.Compile("\nproject = (.+)\n")
@@ -51,26 +48,26 @@ func main() {
 	cmd = exec.Command("gsutil", "ls")
 	var ls_out bytes.Buffer
 	cmd.Stdout = &ls_out
-	failOnError(cmd.Run())
+	util.FailOnError(cmd.Run())
 	fmt.Printf("in all caps: %q\n", ls_out.String())
 	if m, _ := regexp.MatchString("gs://"+project_name+"-csv/\n", ls_out.String()); m {
 		fmt.Println("バケット作成済み")
 	} else {
 		fmt.Println("バケット未作成")
 		cmd = exec.Command("gsutil", "mb", "gs://"+project_name+"-csv")
-		failOnError(cmd.Run())
+		util.FailOnError(cmd.Run())
 		fmt.Println("バケット作成完了")
 	}
 	//作成したcsvファイルをアップロード
 	cmd = exec.Command("gsutil", "cp", "csv/"+mod_date+".csv", "gs://"+project_name+"-csv")
-	failOnError(cmd.Run())
+	util.FailOnError(cmd.Run())
 	fmt.Println("gcsへのアップロードを完了")
 	//BigQueryにデータセットが作成済みかどうかを調べて、未作成なら作成する
 	ds_name := strings.Replace(project_name, "-", "_", -1) + "_ds"
 	cmd = exec.Command("bq", "ls")
 	var ds_out bytes.Buffer
 	cmd.Stdout = &ds_out
-	failOnError(cmd.Run())
+	util.FailOnError(cmd.Run())
 	fmt.Printf("in all caps: %q\n", ds_out.String())
 	fmt.Printf("ds_name: %q\n", ds_name)
 
@@ -79,14 +76,14 @@ func main() {
 	} else {
 		fmt.Println("データセット未作成")
 		cmd = exec.Command("bq", "mk", ds_name)
-		failOnError(cmd.Run())
+		util.FailOnError(cmd.Run())
 		fmt.Println("データセット作成完了")
 	}
 	//データセット内に既にテーブルがあるかどうかを調べ、なかったときだけロードを実施する（追記されてしまうため）
 	cmd = exec.Command("bq", "ls", ds_name)
 	var ds_ls_out bytes.Buffer
 	cmd.Stdout = &ds_ls_out
-	failOnError(cmd.Run())
+	util.FailOnError(cmd.Run())
 	fmt.Printf("in all caps: %q\n", ds_ls_out.String())
 
 	if m3, _ := regexp.MatchString("\n\\s+"+mod_date+"\\s+TABLE\\s+\n", ds_ls_out.String()); m3 {
@@ -95,25 +92,25 @@ func main() {
 		fmt.Println("当該データ未ロード")
 		//作成したデータセットにデータをロードする
 		cmd = exec.Command("bq", "load", "--schema=playdata_schema.json", ds_name+"."+mod_date, "gs://"+project_name+"-csv/"+mod_date+".csv")
-		failOnError(cmd.Run())
+		util.FailOnError(cmd.Run())
 		fmt.Println("bqへのロードを完了")
 	}
 	//ロードに使用したcsvファイルをgcsから削除する
 	cmd = exec.Command("gsutil", "rm", "gs://"+project_name+"-csv/"+mod_date+".csv")
-	failOnError(cmd.Run())
+	util.FailOnError(cmd.Run())
 	fmt.Println("gcs上のファイルの削除を完了")
 }
 
 func export_csv(mod_date string, playDataList []model.Playdata) {
 	// csv ディレクトリがなかったら作る
-	failOnError(os.MkdirAll("./csv", 0744))
+	util.FailOnError(os.MkdirAll("./csv", 0744))
 	filepath := fmt.Sprintf("./csv/%s.csv", mod_date)
 	file, err := os.OpenFile(filepath, os.O_WRONLY|os.O_CREATE, 0600)
-	failOnError(err)
+	util.FailOnError(err)
 	defer file.Close()
 
 	err = file.Truncate(0) // ファイルを空にする(同一ファイルに対して2回目以降の実施の場合)
-	failOnError(err)
+	util.FailOnError(err)
 
 	writer := csv.NewWriter(file)
 
@@ -130,11 +127,4 @@ func export_csv(mod_date string, playDataList []model.Playdata) {
 		writer.Write(raw)
 	}
 	writer.Flush()
-}
-
-func failOnError(err error) {
-	if err != nil {
-		log.Fatal("Error:", err)
-		panic(err)
-	}
 }
