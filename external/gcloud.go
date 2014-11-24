@@ -1,6 +1,8 @@
 package external
 
 import (
+	"../util"
+	"bytes"
 	"os/exec"
 	"regexp"
 )
@@ -15,6 +17,6 @@ func GetProjectName() (project_name string) {
 	reg, _ := regexp.Compile("\nproject = (.+)\n")
 	result := reg.Find([]byte(stdout.String()))
 	replace_reg, _ := regexp.Compile("project|\\s|\n|=")
-	project_name := replace_reg.ReplaceAllString(string(result), "")
+	project_name = replace_reg.ReplaceAllString(string(result), "")
 	return
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"./exporter"
+	"./external"
 	"./model"
 	"./parser"
 	"./util"
@@ -31,20 +32,10 @@ func main() {
 	exporter.ExportCsv(mod_date, playDataList)
 
 	//外部コマンドを実行し、プロジェクト名を取得する
-	cmd := exec.Command("gcloud", "config", "list")
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	util.FailOnError(cmd.Run())
-	fmt.Printf("in all caps: %q\n", out.String())
-	//外部コマンドの実行結果からプロジェクト名を抽出する
-	re, _ := regexp.Compile("\nproject = (.+)\n")
-	one := re.Find([]byte(out.String()))
-	fmt.Println("Find:", string(one))
-	replace_re, _ := regexp.Compile("project|\\s|\n|=")
-	project_name := replace_re.ReplaceAllString(string(one), "")
+	project_name := external.GetProjectName()
 	fmt.Println("project_name:", string(project_name))
 	//バケットが既に作成済みかどうかを調べて、未作成なら作成する
-	cmd = exec.Command("gsutil", "ls")
+	cmd := exec.Command("gsutil", "ls")
 	var ls_out bytes.Buffer
 	cmd.Stdout = &ls_out
 	util.FailOnError(cmd.Run())
