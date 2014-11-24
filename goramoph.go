@@ -2,12 +2,10 @@ package main
 
 import (
 	"./model"
-	"bufio"
+	"./parser"
 	"bytes"
 	"encoding/csv"
-	"encoding/xml"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -25,60 +23,8 @@ func main() {
 	failOnError(err)
 	defer fp.Close()
 
-	reader := bufio.NewReaderSize(fp, 4096)
-
-	var m map[string]string = map[string]string{}
 	var playDataList []model.Playdata
-	var shouldSet bool
-	var key string
-	d := xml.NewDecoder(reader)
-	for {
-		token, err := d.Token()
-		if err == io.EOF {
-			err = nil
-			break
-		}
-		if err != nil {
-			panic(err)
-		}
-		switch token.(type) {
-		case xml.StartElement:
-			if token.(xml.StartElement).Name.Local == "key" {
-				shouldSet = false
-			} else {
-				shouldSet = true
-			}
-		case xml.EndElement:
-			//do nothing
-		case xml.CharData:
-			if string(token.(xml.CharData)) == "Track ID" {
-				// CharData が Track ID が来る＝今まで処理対象だったレコードの終了処理をする ＆ 次のレコードに処理を移す
-				d := model.Playdata{}
-				MapToStruct(m, &d)
-
-				if d.TrackNumber != "" {
-					playDataList = append(playDataList, d)
-					// fmt.Println(d)
-				}
-
-				m = map[string]string{}
-			}
-			if shouldSet && key != "" {
-				m[key] = string(token.(xml.CharData))
-				key = ""
-			} else {
-				key = string(token.(xml.CharData))
-			}
-		case xml.Comment:
-			//do nothing
-		case xml.ProcInst:
-			//do nothing
-		case xml.Directive:
-			//do nothing
-		default:
-			panic("unknown xml token.")
-		}
-	}
+	playDataList = parser.ItunesXmlParse(fp)
 
 	// 出力する csv ファイル名として用いるために、xml ファイルの最終更新日時を取得
 	finfo, err_finfo := fp.Stat()
@@ -184,19 +130,6 @@ func export_csv(mod_date string, playDataList []model.Playdata) {
 		writer.Write(raw)
 	}
 	writer.Flush()
-}
-
-func MapToStruct(mapVal map[string]string, val interface{}) (ok bool) {
-	structVal := r.Indirect(r.ValueOf(val))
-	for name, elem := range mapVal {
-		// ここで来る name は　plist の key エレメントの値なのでスペースを含んでいる。
-		// 一方 struct のフィールド名からはスペースを除去している。
-		f := structVal.FieldByName(strings.Replace(name, " ", "", -1))
-		if f.IsValid() {
-			f.Set(r.ValueOf(elem))
-		}
-	}
-	return
 }
 
 func failOnError(err error) {
