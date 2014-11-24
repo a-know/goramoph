@@ -35,21 +35,16 @@ func main() {
 	project_name := external.GetProjectName()
 	fmt.Println("project_name:", string(project_name))
 	//バケットが既に作成済みかどうかを調べて、未作成なら作成する
-	cmd := exec.Command("gsutil", "ls")
-	var ls_out bytes.Buffer
-	cmd.Stdout = &ls_out
-	util.FailOnError(cmd.Run())
-	fmt.Printf("in all caps: %q\n", ls_out.String())
-	if m, _ := regexp.MatchString("gs://"+project_name+"-csv/\n", ls_out.String()); m {
+	if external.IsBucketExists(project_name) {
 		fmt.Println("バケット作成済み")
 	} else {
 		fmt.Println("バケット未作成")
-		cmd = exec.Command("gsutil", "mb", "gs://"+project_name+"-csv")
+		cmd := exec.Command("gsutil", "mb", "gs://"+project_name+"-csv")
 		util.FailOnError(cmd.Run())
 		fmt.Println("バケット作成完了")
 	}
 	//作成したcsvファイルをアップロード
-	cmd = exec.Command("gsutil", "cp", "csv/"+mod_date+".csv", "gs://"+project_name+"-csv")
+	cmd := exec.Command("gsutil", "cp", "csv/"+mod_date+".csv", "gs://"+project_name+"-csv")
 	util.FailOnError(cmd.Run())
 	fmt.Println("gcsへのアップロードを完了")
 	//BigQueryにデータセットが作成済みかどうかを調べて、未作成なら作成する

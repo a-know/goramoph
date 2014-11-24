@@ -20,3 +20,7 @@ func GetModDate(fp *os.File) (mod_date string) {
 	mod_date = fmt.Sprintf("%d%02d%02d%02d%02d%02d", ts.Year(), ts.Month(), ts.Day(), ts.Hour(), ts.Minute(), ts.Second())
 	return
 }
+
+func GenerateBucketName(project_name string) string {
+	return "gs://" + project_name + "-csv/"
+}
