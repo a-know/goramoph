@@ -1,6 +1,7 @@
 package main
 
 import (
+	"./model"
 	"bufio"
 	"bytes"
 	"encoding/csv"
@@ -27,7 +28,7 @@ func main() {
 	reader := bufio.NewReaderSize(fp, 4096)
 
 	var m map[string]string = map[string]string{}
-	var playDataList []playData
+	var playDataList []model.Playdata
 	var shouldSet bool
 	var key string
 	d := xml.NewDecoder(reader)
@@ -52,7 +53,7 @@ func main() {
 		case xml.CharData:
 			if string(token.(xml.CharData)) == "Track ID" {
 				// CharData が Track ID が来る＝今まで処理対象だったレコードの終了処理をする ＆ 次のレコードに処理を移す
-				d := playData{}
+				d := model.Playdata{}
 				MapToStruct(m, &d)
 
 				if d.TrackNumber != "" {
@@ -157,7 +158,7 @@ func main() {
 	fmt.Println("gcs上のファイルの削除を完了")
 }
 
-func export_csv(mod_date string, playDataList []playData) {
+func export_csv(mod_date string, playDataList []model.Playdata) {
 	// csv ディレクトリがなかったら作る
 	failOnError(os.MkdirAll("./csv", 0744))
 	filepath := fmt.Sprintf("./csv/%s.csv", mod_date)
@@ -203,59 +204,4 @@ func failOnError(err error) {
 		log.Fatal("Error:", err)
 		panic(err)
 	}
-}
-
-type playData struct {
-	Artist               string
-	Album                string
-	Genre                string
-	Kind                 string
-	Size                 string
-	TotalTime            string
-	TrackNumber          string
-	DateModified         string
-	DateAdded            string
-	BitRate              string
-	SampleRate           string
-	PersistentID         string
-	TrackType            string
-	Location             string
-	FileFolderCount      string
-	LibraryFolderCount   string
-	PlayCount            string
-	PlayDate             string
-	PlayDateUTC          string
-	Rating               string
-	AlbumRating          string
-	AlbumRatingComputed  string
-	ArtworkCount         string
-	SkipCount            string
-	SkipDate             string
-	Disabled             string
-	SortAlbum            string
-	Year                 string
-	Comments             string
-	SortName             string
-	SortArtist           string
-	VolumeAdjustment     string
-	AlbumArtist          string
-	DiscNumber           string
-	DiscCount            string
-	TrackCount           string
-	ReleaseDate          string
-	Protected            string
-	Purchased            string
-	Compilation          string
-	Composer             string
-	HasVideo             string
-	VideoWidth           string
-	VideoHeight          string
-	Movie                string
-	Master               string
-	PlaylistID           string
-	PlaylistPersistentID string
-	Visible              string
-	AllItems             string
-	PlaylistItems        string
-	SmartCriteria        string
 }
