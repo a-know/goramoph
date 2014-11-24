@@ -100,6 +100,21 @@ func main() {
 	replace_re, _ := regexp.Compile("project|\\s|\n|=")
 	project_name := replace_re.ReplaceAllString(string(one), "")
 	fmt.Println("project_name:", string(project_name))
+	//バケットが既に作成済みかどうかを調べて、未作成なら作成する
+	cmd = exec.Command("gsutil", "ls")
+	var ls_out bytes.Buffer
+	cmd.Stdout = &ls_out
+	failOnError(cmd.Run())
+	fmt.Printf("in all caps: %q\n", ls_out.String())
+	if m, _ := regexp.MatchString("gs://"+project_name+"-csv/\n", ls_out.String()); m {
+		fmt.Println("バケット作成済み")
+	} else {
+		fmt.Println("バケット未作成")
+		cmd = exec.Command("gsutil", "mb", "gs://"+project_name+"-csv")
+		failOnError(cmd.Run())
+		fmt.Println("バケット作成完了")
+	}
+
 }
 
 func export_csv(mod_date string, playDataList []playData) {
