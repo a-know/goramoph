@@ -13,7 +13,7 @@ import (
 func ExportCsv(mod_date string, playDataList []model.Playdata) {
 	// csv ディレクトリがなかったら作る
 	util.FailOnError(os.MkdirAll("./csv", 0744))
-	filepath := fmt.Sprintf("./csv/%s.csv", mod_date)
+	filepath := GetCsvFilepath(mod_date)
 	file, err := os.OpenFile(filepath, os.O_WRONLY|os.O_CREATE, 0600)
 	util.FailOnError(err)
 	defer file.Close()
@@ -36,4 +36,8 @@ func ExportCsv(mod_date string, playDataList []model.Playdata) {
 		writer.Write(raw)
 	}
 	writer.Flush()
+}
+
+func GetCsvFilepath(mod_date string) string {
+	return fmt.Sprintf("./csv/%s.csv", mod_date)
 }

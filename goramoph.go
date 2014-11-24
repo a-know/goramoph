@@ -32,7 +32,7 @@ func main() {
 	exporter.ExportCsv(mod_date, playDataList)
 
 	//外部コマンドを実行し、プロジェクト名を取得する
-	project_name := external.GetProjectName() + "_test"
+	project_name := external.GetProjectName()
 	fmt.Println("project_name:", string(project_name))
 	//バケットが既に作成済みかどうかを調べて、未作成なら作成する
 	if external.IsBucketExists(project_name) {
@@ -43,12 +43,11 @@ func main() {
 		fmt.Println("バケット作成完了")
 	}
 	//作成したcsvファイルをアップロード
-	cmd := exec.Command("gsutil", "cp", "csv/"+mod_date+".csv", "gs://"+project_name+"-csv")
-	util.FailOnError(cmd.Run())
+	external.FileUpload(project_name, mod_date)
 	fmt.Println("gcsへのアップロードを完了")
 	//BigQueryにデータセットが作成済みかどうかを調べて、未作成なら作成する
 	ds_name := strings.Replace(project_name, "-", "_", -1) + "_ds"
-	cmd = exec.Command("bq", "ls")
+	cmd := exec.Command("bq", "ls")
 	var ds_out bytes.Buffer
 	cmd.Stdout = &ds_out
 	util.FailOnError(cmd.Run())

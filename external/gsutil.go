@@ -1,6 +1,7 @@
 package external
 
 import (
+	"../exporter"
 	"../util"
 	"bytes"
 	"os/exec"
@@ -19,5 +20,10 @@ func IsBucketExists(project_name string) bool {
 
 func MakeBucket(project_name string) {
 	cmd := exec.Command("gsutil", "mb", util.GenerateBucketName(project_name))
+	util.FailOnError(cmd.Run())
+}
+
+func FileUpload(project_name, mod_date string) {
+	cmd := exec.Command("gsutil", "cp", exporter.GetCsvFilepath(mod_date), util.GenerateBucketName(project_name))
 	util.FailOnError(cmd.Run())
 }
