@@ -2,13 +2,16 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/csv"
 	"encoding/xml"
 	"fmt"
 	"io"
 	"log"
 	"os"
+	"os/exec"
 	r "reflect"
+	"regexp"
 	"strings"
 )
 
@@ -83,6 +86,20 @@ func main() {
 	mod_date := fmt.Sprintf("%d%02d%02d%02d%02d%02d", ts.Year(), ts.Month(), ts.Day(), ts.Hour(), ts.Minute(), ts.Second())
 
 	export_csv(mod_date, playDataList)
+
+	//外部コマンドを実行し、プロジェクト名を取得する
+	cmd := exec.Command("gcloud", "config", "list")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	failOnError(cmd.Run())
+	fmt.Printf("in all caps: %q\n", out.String())
+	//外部コマンドの実行結果からプロジェクト名を抽出する
+	re, _ := regexp.Compile("\nproject = (.+)\n")
+	one := re.Find([]byte(out.String()))
+	fmt.Println("Find:", string(one))
+	replace_re, _ := regexp.Compile("project|\\s|\n|=")
+	project_name := replace_re.ReplaceAllString(string(one), "")
+	fmt.Println("project_name:", string(project_name))
 }
 
 func export_csv(mod_date string, playDataList []playData) {
