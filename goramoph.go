@@ -14,6 +14,15 @@ func main() {
 	fmt.Println("Starting goramoph.")
 	var fp *os.File
 	var err error
+	// 起動時引数の検証
+	if len(os.Args) != 2 {
+		fmt.Println("Usage: goramoph.go [path to iTunes Music Library.xml]")
+		os.Exit(1)
+	} else if _, err := os.Stat(os.Args[1]); err != nil {
+		msg := fmt.Sprintf("file %s is not exists.", os.Args[1])
+		fmt.Println(msg)
+		os.Exit(1)
+	}
 
 	// パース対象の xml ファイル名を引数に受ける
 	fmt.Printf("xml parsing...")
