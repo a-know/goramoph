@@ -1,7 +1,7 @@
 # goramoph
 ## About
-`goramoph` is a tool to transfer the play history of iTunes to BigQuery.
-`goramoph` is a parody of `gramophone`.
+`goramoph` is a tool to load the play history of iTunes to BigQuery.
+
 
 ## Prepare
 1. Download the `Google Cloud SDK` and dispense the authentication.
@@ -20,3 +20,28 @@
 3. Project Setting
 	* `$ gcloud config set project <project-id>`
 		* ex. `$ gcloud config set project a-know-goramoph`
+
+
+## How to use
+`$ go run goramoph.go [path to iTunes Music Library.xml]`
+
+
+## Goramoph's behavior
+1. Parse `iTunes Music Library.xml`.
+2. Parsing result is export to `./csv` as csv file.
+    * Csv file name is `./csv/<last-modify-date>.csv`
+3. Upload csv file to `Google Cloud Storage`.
+    * Bucket name is `<project-id>-csv`
+4. Load csv file contents to `Google BigQuery` dataset and table.
+    * Dataset name is `<project-id>_ds`
+    * table name is `<last-modify-date>`
+5. Remove uploaded csv file.
+
+
+## Notes
+* `Google Cloud Storage` and `Google BigQuery` are require billing setting. 
+* Absolutely I do not know anything about your billing amounts.
+
+
+## License
+This software is released under the MIT License, see LICENSE.txt.

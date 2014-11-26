@@ -1,0 +1,56 @@
+package model
+
+type Playdata struct {
+	Artist               string
+	Album                string
+	Genre                string
+	Kind                 string
+	Size                 string
+	TotalTime            string
+	TrackNumber          string
+	DateModified         string
+	DateAdded            string
+	BitRate              string
+	SampleRate           string
+	PersistentID         string
+	TrackType            string
+	Location             string
+	FileFolderCount      string
+	LibraryFolderCount   string
+	PlayCount            string
+	PlayDate             string
+	PlayDateUTC          string
+	Rating               string
+	AlbumRating          string
+	AlbumRatingComputed  string
+	ArtworkCount         string
+	SkipCount            string
+	SkipDate             string
+	Disabled             string
+	SortAlbum            string
+	Year                 string
+	Comments             string
+	SortName             string
+	SortArtist           string
+	VolumeAdjustment     string
+	AlbumArtist          string
+	DiscNumber           string
+	DiscCount            string
+	TrackCount           string
+	ReleaseDate          string
+	Protected            string
+	Purchased            string
+	Compilation          string
+	Composer             string
+	HasVideo             string
+	VideoWidth           string
+	VideoHeight          string
+	Movie                string
+	Master               string
+	PlaylistID           string
+	PlaylistPersistentID string
+	Visible              string
+	AllItems             string
+	PlaylistItems        string
+	SmartCriteria        string
+}
