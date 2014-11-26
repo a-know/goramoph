@@ -20,3 +20,6 @@
 3. Project Setting
 	* `$ gcloud config set project <project-id>`
 		* ex. `$ gcloud config set project a-know-goramoph`
+
+## License
+This software is released under the MIT License, see LICENSE.txt.
