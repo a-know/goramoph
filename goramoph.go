@@ -11,10 +11,12 @@ import (
 )
 
 func main() {
+	fmt.Println("Starting goramoph.")
 	var fp *os.File
 	var err error
 
 	// パース対象の xml ファイル名を引数に受ける
+	fmt.Printf("xml parsing...")
 	fp, err = os.Open(os.Args[1])
 	util.FailOnError(err)
 	defer fp.Close()
@@ -24,41 +26,51 @@ func main() {
 
 	// 出力する csv ファイル名として用いるために、xml ファイルの最終更新日時を取得
 	mod_date := util.GetModDate(fp)
+	fmt.Println("done")
 
+	fmt.Printf("exporting csv...")
 	exporter.ExportCsv(mod_date, playDataList)
+	fmt.Println("done")
 
 	//外部コマンドを実行し、プロジェクト名を取得する
+	fmt.Printf("getting Google Cloud Project name...")
 	project_name := external.GetProjectName()
 	fmt.Println("project_name:", string(project_name))
 	//バケットが既に作成済みかどうかを調べて、未作成なら作成する
+	fmt.Printf("checking bucket...")
 	if external.IsBucketExists(project_name) {
-		fmt.Println("バケット作成済み")
+		fmt.Println("bucket has alredy created")
 	} else {
-		fmt.Println("バケット未作成")
+		fmt.Printf("bucket has not created yet, now creating...")
 		external.MakeBucket(project_name)
-		fmt.Println("バケット作成完了")
+		fmt.Println("done")
 	}
 	//作成したcsvファイルをアップロード
+	fmt.Printf("uploading csv...")
 	external.FileUpload(project_name, mod_date)
-	fmt.Println("gcsへのアップロードを完了")
+	fmt.Println("done")
 	//BigQueryにデータセットが作成済みかどうかを調べて、未作成なら作成する
+	fmt.Printf("checking dataset...")
 	if external.IsDatasetExists(project_name) {
-		fmt.Println("データセット作成済み")
+		fmt.Println("dataset has alredy created")
 	} else {
-		fmt.Println("データセット未作成")
+		fmt.Printf("dataset has not created yet, now creating...")
 		external.MakeDataset(project_name)
-		fmt.Println("データセット作成完了")
+		fmt.Println("done")
 	}
 	//データセット内に既にテーブルがあるかどうかを調べ、なかったときだけロードを実施する（追記されてしまうため）
+	fmt.Printf("checking table...")
 	if external.IsTableExists(project_name, mod_date) {
-		fmt.Println("当該データロード済み")
+		fmt.Println("this playdata has alredy loaded")
 	} else {
-		fmt.Println("当該データ未ロード")
+		fmt.Printf("this playdata has not load yet, now loading...")
 		//作成したデータセットにデータをロードする
 		external.LoadToTable(project_name, mod_date)
-		fmt.Println("bqへのロードを完了")
+		fmt.Println("load to table success")
 	}
 	//ロードに使用したcsvファイルをgcsから削除する
+	fmt.Printf("remove csv file on Cloud Storage...")
 	external.RemoveUploadFile(project_name, mod_date)
-	fmt.Println("gcs上のファイルの削除を完了")
+	fmt.Println("done")
+	fmt.Println("completed.")
 }
