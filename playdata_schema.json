@@ -8,6 +8,10 @@
 "type": "string"
 },
 {
+"name": "Name",
+"type": "string"
+},
+{
 "name": "Genre",
 "type": "string"
 },

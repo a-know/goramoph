@@ -3,6 +3,7 @@ package model
 type Playdata struct {
 	Artist               string
 	Album                string
+	Name                 string
 	Genre                string
 	Kind                 string
 	Size                 string
